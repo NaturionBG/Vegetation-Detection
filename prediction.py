@@ -94,9 +94,13 @@ class VegetationDetection(AbstractPredictor):
       X.index = [i.lower() for i in X.index]
       if DOY:
         if DOY >= 184:
-          return self.__ends_model.predict(X[self.__end_features])
+          x = pd.DataFrame(X[self.__end_features]).T
+          x.columns = ['EVI2', 'RedContrast', '2m_temp_max', 'skin_temp_max', 'total_evaporation', 'DayLength']
+          return self.__ends_model.predict(x)
         else:
-          return self.__starts_model.predict(X[self.__start_features])
+          x = pd.DataFrame(X[self.__start_features]).T
+          x.columns = ['EVI2', 'LSWI', '2m_temp_max', 'skin_temp_max', 'gdd_2m_acc', 'DayLength']
+          return self.__starts_model.predict(x)
       else:
         raise AssertionError('For a pd.Series object, DOY must be passed as an argument!')
       
@@ -109,12 +113,14 @@ class VegetationDetection(AbstractPredictor):
       
       if not sos.empty:
         sos = sos[self.__start_features]
+        sos.columns = ['EVI2', 'LSWI', '2m_temp_max', 'skin_temp_max', 'gdd_2m_acc', 'DayLength']
       else:
         print('Start-Of-Season data missing...')
         SOS = False
       
       if not eos.empty:
         eos = eos[self.__end_features]
+        eos.columns = ['EVI2', 'RedContrast', '2m_temp_max', 'skin_temp_max', 'total_evaporation', 'DayLength']
       else:
         print('End-Of-Season data missing...')
         EOS = False
@@ -129,3 +135,4 @@ class VegetationDetection(AbstractPredictor):
       
     else:
       raise AssertionError('Non-supported input type detected.')
+
